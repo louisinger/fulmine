@@ -100,6 +100,9 @@ templ Tx(tx types.Transaction, explorerUrl string) {
         if tx.Kind == "swap" {
           @SwappedTxTable(tx.Amount, tx.CreatedAt, tx.Status)
         }
+        if tx.Explorable && explorerUrl != "" && len(tx.Txid) > 0 {
+          <a class="visible mt-4" href={explorerUrl + "/tx/" + tx.Txid} target="_blank" rel="noopener noreferrer">View on explorer</a>
+        }
       </div>
     </div>
     @ViewTxButton(tx.Txid, explorerUrl)
