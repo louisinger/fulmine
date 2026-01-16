@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const arkExplorerUrl = "https://arkade.space"
+
 func getExplorerUrl(network string) string {
 	switch network {
 	case "liquid":
