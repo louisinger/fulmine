@@ -623,6 +623,9 @@ func (s *service) getTx(c *gin.Context) {
 	}
 
 	explorerUrl := getExplorerUrl(data.Network.Name)
+	if tx.ExplorerUrl != "" {
+		explorerUrl = tx.ExplorerUrl
+	}
 
 	var bodyContent templ.Component
 	if len(tx.Txid) == 0 {
@@ -698,6 +701,7 @@ func (s *service) getTxHistory(c *gin.Context) (transactions []types.Transaction
 	if err != nil {
 		return nil, err
 	}
+	explorerUrl := getExplorerUrl(data.Network.Name)
 	// transform each sdktypes.Transaction to types.Transaction
 	for _, tx := range history {
 		// amount
@@ -720,27 +724,29 @@ func (s *service) getTxHistory(c *gin.Context) (transactions []types.Transaction
 		}
 		// get one txid to identify tx
 		txid := tx.RoundTxid
-		explorable := true
+		txExplorerUrl := explorerUrl
 		if len(txid) == 0 {
 			txid = tx.RedeemTxid
-			explorable = false
+			txExplorerUrl = arkExplorerUrl
 		}
 		if len(txid) == 0 {
 			txid = tx.BoardingTxid
-			explorable = true
+			txExplorerUrl = explorerUrl
 		}
+		explorable := len(txid) > 0
 		// add to slice of transactions
 		transactions = append(transactions, types.Transaction{
-			Amount:     amount,
-			CreatedAt:  prettyUnixTimestamp(dateCreated),
-			Day:        prettyDay(dateCreated),
-			ExpiresAt:  prettyUnixTimestamp(expiresAt),
-			Explorable: explorable,
-			Hour:       prettyHour(dateCreated),
-			Kind:       strings.ToLower(string(tx.Type)),
-			Txid:       txid,
-			Status:     status,
-			UnixDate:   dateCreated,
+			Amount:      amount,
+			CreatedAt:   prettyUnixTimestamp(dateCreated),
+			Day:         prettyDay(dateCreated),
+			ExpiresAt:   prettyUnixTimestamp(expiresAt),
+			Explorable:  explorable,
+			ExplorerUrl: txExplorerUrl,
+			Hour:        prettyHour(dateCreated),
+			Kind:        strings.ToLower(string(tx.Type)),
+			Txid:        txid,
+			Status:      status,
+			UnixDate:    dateCreated,
 		})
 	}
 	return
@@ -833,7 +839,11 @@ func (s *service) claimTx(c *gin.Context) {
 
 	tx.Status = "success"
 
-	partial := components.Tx(tx, getExplorerUrl(data.Network.Name))
+	explorerUrl := getExplorerUrl(data.Network.Name)
+	if tx.ExplorerUrl != "" {
+		explorerUrl = tx.ExplorerUrl
+	}
+	partial := components.Tx(tx, explorerUrl)
 	partialViewHandler(partial, c)
 }
 
