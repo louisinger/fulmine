@@ -238,20 +238,20 @@ func PendingTxTable(createdAt, expiresAt, nextClaim string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div class=\"bg-desktopbg md:bg-white/10 p-4 w-full max-w-[360px] mt-4 rounded-lg text-white\"><p class=\"mb-4\">Your settlement has been scheduled for <span class=\"font-semibold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div class=\"bg-desktopbg md:bg-white/10 p-4 w-full max-w-[360px] mt-4 rounded-lg text-white\"><p class=\"mb-4\">Your settlement has been scheduled on <span class=\"font-semibold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(nextClaim)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/interface/web/templates/components/feeTable.templ`, Line: 49, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/interface/web/templates/components/feeTable.templ`, Line: 49, Col: 96}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span> for 500 SATS.</p><p class=\"mb-4\">You can settle now for 25.000 SATS</p><div class=\"flex justify-between text-white/50 items-center gap-4\"><p hx-get=\"/modal/reversibleinfo\" hx-target=\"#modal\" class=\"cursor-pointer\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span> (500 SATS).</p><p class=\"mb-4\">You can settle now at 25.000 SATS</p><div class=\"flex justify-between text-white/50 items-center gap-4\"><p hx-get=\"/modal/reversibleinfo\" hx-target=\"#modal\" class=\"cursor-pointer\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
