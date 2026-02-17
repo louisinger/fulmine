@@ -425,6 +425,9 @@ func (s *DelegatorService) listenBatchStartedEvents(ctx context.Context) {
 		return
 	}
 
+	var lastReconnect time.Time
+	const minReconnectInterval = 30 * time.Second
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -434,6 +437,16 @@ func (s *DelegatorService) listenBatchStartedEvents(ctx context.Context) {
 			return
 		case notify, ok := <-eventsCh:
 			if !ok {
+				if elapsed := time.Since(lastReconnect); elapsed < minReconnectInterval {
+					select {
+					case <-ctx.Done():
+						if stop != nil {
+							stop()
+						}
+						return
+					case <-time.After(minReconnectInterval - elapsed):
+					}
+				}
 				newEventsCh, newStop, err := connectStreamWithRetry(ctx, stop, connectStream)
 				if err != nil {
 					log.WithError(err).Error(
@@ -443,6 +456,7 @@ func (s *DelegatorService) listenBatchStartedEvents(ctx context.Context) {
 				}
 				eventsCh = newEventsCh
 				stop = newStop
+				lastReconnect = time.Now()
 				continue
 			}
 			if notify.Err != nil {
@@ -660,6 +674,10 @@ func (s *DelegatorService) monitorVtxosSpent(ctx context.Context) {
 				spentVtxosOutpoints = make([]wire.OutPoint, 0)
 				spentVtxosOutpointsMtx.Unlock()
 
+				if len(outpoints) == 0 {
+					continue
+				}
+
 				// cancel pending tasks with spent vtxos outpoints
 				s.delegateMtx.Lock()
 
@@ -684,6 +702,9 @@ func (s *DelegatorService) monitorVtxosSpent(ctx context.Context) {
 		}
 	}()
 
+	var lastReconnect time.Time
+	const minReconnectInterval = 30 * time.Second
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -693,6 +714,16 @@ func (s *DelegatorService) monitorVtxosSpent(ctx context.Context) {
 			return
 		case event, ok := <-eventsCh:
 			if !ok {
+				if elapsed := time.Since(lastReconnect); elapsed < minReconnectInterval {
+					select {
+					case <-ctx.Done():
+						if stop != nil {
+							stop()
+						}
+						return
+					case <-time.After(minReconnectInterval - elapsed):
+					}
+				}
 				newEventsCh, newStop, err := connectStreamWithRetry(
 					ctx, stop, s.svc.grpcClient.GetTransactionsStream,
 				)
@@ -704,6 +735,7 @@ func (s *DelegatorService) monitorVtxosSpent(ctx context.Context) {
 				}
 				eventsCh = newEventsCh
 				stop = newStop
+				lastReconnect = time.Now()
 				continue
 			}
 			if event.Err != nil {

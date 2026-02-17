@@ -129,7 +129,7 @@ func connectStreamWithRetry[T any](
 		log.WithFields(log.Fields{
 			"attempt": attempt,
 			"backoff": backoff,
-		}).Warn("event stream closed, attempting to reconnect...")
+		}).Warn("attempting to connect to event stream...")
 
 		eventsCh, stop, err := connectStream(ctx)
 		if err == nil {
